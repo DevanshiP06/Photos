@@ -4,9 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>edu.youruniv.photos</groupId>
-  <artifactId>PhotosXX</artifactId>
+
+  <groupId>edu.rutgers.photos</groupId>
+  <artifactId>Photos</artifactId>
   <version>1.0-SNAPSHOT</version>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>21</maven.compiler.source>
@@ -28,13 +30,21 @@
   </dependencies>
 
   <build>
+  <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>**/*.fxml</include>
+            </includes>
+        </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-maven-plugin</artifactId>
-        <version>0.0.14</version>
+        <version>0.0.8</version>
         <configuration>
-          <mainClass>photosxx.Photos</mainClass>
+          <mainClass>photos.Photos</mainClass>
         </configuration>
       </plugin>
     </plugins>

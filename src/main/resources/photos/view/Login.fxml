@@ -5,11 +5,11 @@
 <?import javafx.scene.layout.*?>
 
 <VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="photosxx.controller.LoginController">
+      fx:controller="photos.controller.LoginController">
   <padding>
     <Insets top="20" right="20" bottom="20" left="20"/>
   </padding>
-  <Label text="PhotosXX - Login"/>
+  <Label text="Photos - Login"/>
   <HBox spacing="10">
     <Label text="Username:"/>
     <TextField fx:id="usernameField" prefWidth="180"/>

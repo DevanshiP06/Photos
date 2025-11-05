@@ -12,7 +12,7 @@ public class Photos extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("view/Login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/photos/view/Login.fxml"));
             Scene scene = new Scene(loader.load());
             primaryStage.setTitle("Photos App - Login");
             primaryStage.setScene(scene);

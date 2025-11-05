@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="photosxx.controller.AdminController">
+    <Label text="Admin - Users"/>
+    <ListView fx:id="usersList" prefHeight="200"/>
+    <HBox spacing="10">
+        <TextField fx:id="newUserField" promptText="New username"/>
+        <Button text="Create" onAction="#onCreateUser"/>
+        <Button text="Delete Selected" onAction="#onDeleteUser"/>
+    </HBox>
+</VBox>
