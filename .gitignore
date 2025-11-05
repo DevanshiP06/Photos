@@ -1,0 +1,14 @@
+# .gitignore
+target/
+out/
+*.class
+*.log
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# runtime / user data (do NOT commit user data)
+data/users/
+*.ser
