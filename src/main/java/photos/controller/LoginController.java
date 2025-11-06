@@ -8,39 +8,65 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import photos.StorageManager;
+import photos.model.User;
 
 public class LoginController {
-    @FXML
-    private TextField usernameField;
-    @FXML
-    private PasswordField passwordField;
+
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
 
     @FXML
     private void onLogin(ActionEvent e) {
         String user = usernameField.getText().trim();
-        if (user.isEmpty()) {
-            new Alert(Alert.AlertType.ERROR, "Please enter a username.").showAndWait();
+        String pass = passwordField.getText().trim();
+
+        if(user.isEmpty() || pass.isEmpty()) {
+            new Alert(Alert.AlertType.ERROR, "Enter username and password.").showAndWait();
             return;
         }
 
+        // Admin login
+        if(user.equals("admin") && pass.equals("admin")) {
+            loadScreen("/photos/view/Admin.fxml", "Admin");
+            return;
+        }
+
+        // User login
+        for(User u : StorageManager.loadUsers()) {
+            if(u.getUsername().equals(user) && u.verifyPassword(pass)) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/photos/view/User.fxml"));
+                try {
+                    Stage stage = (Stage) usernameField.getScene().getWindow();
+                    stage.setScene(new Scene(loader.load()));
+                    stage.setTitle("Photos - " + user);
+
+                    // pass user object to UserController
+                    photos.controller.UserController controller = loader.getController();
+                    controller.setUser(u);
+                } catch(Exception ex) {
+                    ex.printStackTrace();
+                }
+                return;
+            }
+        }
+
+        new Alert(Alert.AlertType.ERROR, "Invalid username or password!").showAndWait();
+    }
+
+    private void loadScreen(String fxml, String title) {
         try {
             Stage stage = (Stage) usernameField.getScene().getWindow();
-            if (user.equals("admin")) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Admin.fxml"));
-                stage.setScene(new Scene(loader.load()));
-            } else {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/User.fxml"));
-                stage.setScene(new Scene(loader.load()));
-            }
-            stage.setTitle("Photos - " + user);
-        } catch (Exception ex) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            stage.setScene(new Scene(loader.load()));
+            stage.setTitle("Photos - " + title);
+        } catch(Exception ex) {
             ex.printStackTrace();
         }
     }
 
     @FXML
     private void onQuit(ActionEvent e) {
-        // close the app
         Stage s = (Stage) usernameField.getScene().getWindow();
         s.close();
     }

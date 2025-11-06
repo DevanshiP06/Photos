@@ -17,12 +17,6 @@ public class Album implements Serializable {
     public void setName(String name) { this.name = name; }
 
     public List<Photo> getPhotos() { return photos; }
-
-    public void addPhoto(Photo photo) {
-        if (!photos.contains(photo)) photos.add(photo);
-    }
-
-    public void removePhoto(Photo photo) {
-        photos.remove(photo);
-    }
+    public void addPhoto(Photo p) { photos.add(p); }
+    public void removePhoto(Photo p) { photos.remove(p); }
 }

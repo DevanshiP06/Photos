@@ -13,6 +13,7 @@ public class AdminController {
 
     @FXML private ListView<String> usersList;
     @FXML private TextField newUserField;
+    @FXML private PasswordField newPassField;
 
     private ObservableList<String> userNames = FXCollections.observableArrayList();
 
@@ -24,8 +25,9 @@ public class AdminController {
     private void refreshUsers() {
         List<User> users = StorageManager.loadUsers();
         userNames.clear();
-        for (User u : users) {
-            if (!u.getUsername().equals("admin")) userNames.add(u.getUsername());
+        for(User u : users) {
+            if(!u.getUsername().equals("admin"))
+                userNames.add(u.getUsername());
         }
         usersList.setItems(userNames);
     }
@@ -33,20 +35,25 @@ public class AdminController {
     @FXML
     private void onCreateUser() {
         String username = newUserField.getText().trim();
-        if (username.isEmpty()) {
-            new Alert(Alert.AlertType.ERROR, "Enter username").showAndWait();
+        String password = newPassField.getText().trim();
+
+        if(username.isEmpty() || password.isEmpty()) {
+            new Alert(Alert.AlertType.ERROR, "Enter username and password.").showAndWait();
             return;
         }
-        User u = new User(username, ""); // empty password (optional)
-        StorageManager.saveUser(u);
+
+        User newUser = new User(username, password);
+        StorageManager.saveUser(newUser);
         refreshUsers();
         newUserField.clear();
+        newPassField.clear();
     }
 
     @FXML
     private void onDeleteUser() {
         String selected = usersList.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
+        if(selected == null) return;
+
         StorageManager.deleteUser(selected);
         refreshUsers();
     }
