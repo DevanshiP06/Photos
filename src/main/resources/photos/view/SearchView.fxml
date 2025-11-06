@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="photos.controller.SearchController">
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <Label text="Search Photos" style="-fx-font-size: 16;"/>
+
+    <TitledPane text="Search by Date Range" expanded="true">
+        <VBox spacing="5" padding="5">
+            <Label text="Start Date (yyyy-mm-dd)"/>
+            <TextField fx:id="startDateField"/>
+            <Label text="End Date (yyyy-mm-dd)"/>
+            <TextField fx:id="endDateField"/>
+            <Button text="Search by Date" onAction="#onSearchByDate"/>
+        </VBox>
+    </TitledPane>
+
+    <TitledPane text="Search by Tags" expanded="true">
+        <VBox spacing="5" padding="5">
+            <Label text="Tag Type 1"/>
+            <TextField fx:id="tag1Type"/>
+            <Label text="Tag Value 1"/>
+            <TextField fx:id="tag1Value"/>
+
+            <Label text="Tag Type 2 (optional)"/>
+            <TextField fx:id="tag2Type"/>
+            <Label text="Tag Value 2 (optional)"/>
+            <TextField fx:id="tag2Value"/>
+
+            <ChoiceBox fx:id="tagOperator">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String>AND</String>
+                        <String>OR</String>
+                    </FXCollections>
+                </items>
+            </ChoiceBox>
+
+            <Button text="Search by Tags" onAction="#onSearchByTags"/>
+        </VBox>
+    </TitledPane>
+
+    <ListView fx:id="resultsList" prefHeight="200"/>
+    <HBox spacing="10">
+        <Button text="Create Album from Results" onAction="#onCreateAlbum"/>
+        <Button text="Close" onAction="#onClose"/>
+    </HBox>
+</VBox>

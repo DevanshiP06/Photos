@@ -4,11 +4,15 @@
 
 <VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="photos.controller.UserController">
+    
     <Label text="User - Albums"/>
+
     <ListView fx:id="albumsList" prefHeight="200"/>
+
     <HBox spacing="10">
         <TextField fx:id="newAlbumField" promptText="New album"/>
         <Button text="Add" onAction="#onAddAlbum"/>
         <Button text="Delete Selected" onAction="#onDeleteAlbum"/>
+        <Button text="Search Photos" onAction="#onSearchPhotos"/>
     </HBox>
 </VBox>

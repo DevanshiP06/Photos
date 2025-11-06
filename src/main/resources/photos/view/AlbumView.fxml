@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="photos.controller.AlbumController"
+      alignment="TOP_CENTER">
+
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <Label text="Album" style="-fx-font-size:18;" />
+
+    <HBox spacing="10">
+        <ListView fx:id="photosList" prefWidth="200" prefHeight="300"/>
+        <VBox spacing="10">
+            <Label text="Photo Details" style="-fx-font-weight:bold;" />
+            <Label text="Caption:" />
+            <TextField fx:id="captionField" prefWidth="200"/>
+            <Label text="Date:" />
+            <Label fx:id="dateLabel" />
+            <Label text="Tags:" />
+            <ListView fx:id="tagsList" prefHeight="150"/>
+            <HBox spacing="5">
+                <TextField fx:id="tagTypeField" promptText="Type"/>
+                <TextField fx:id="tagValueField" promptText="Value"/>
+                <Button text="Add Tag" onAction="#onAddTag"/>
+                <Button text="Delete Tag" onAction="#onDeleteTag"/>
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <HBox spacing="10">
+        <Button fx:id="addPhotoButton" text="Add Photo" onAction="#onAddPhoto"/>
+        <Button text="Remove Photo" onAction="#onDeletePhoto"/>
+        <Button text="Update Caption" onAction="#onUpdateCaption"/>
+    </HBox>
+
+    <HBox spacing="10">
+        <Button text="Previous" onAction="#onPreviousPhoto"/>
+        <Button text="Next" onAction="#onNextPhoto"/>
+    </HBox>
+
+    <Button text="Back to Albums" onAction="#onBack"/>
+</VBox>
