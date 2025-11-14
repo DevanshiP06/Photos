@@ -16,7 +16,7 @@
     <Label text="Album" style="-fx-font-size:18;" />
 
     <HBox spacing="10">
-        <ListView fx:id="photosList" prefWidth="200" prefHeight="300"/>
+        <ListView fx:id="photoListView" prefWidth="400" prefHeight="300"/>
         <VBox spacing="10">
             <Label text="Photo Details" style="-fx-font-weight:bold;" />
             <Label text="Caption:" />

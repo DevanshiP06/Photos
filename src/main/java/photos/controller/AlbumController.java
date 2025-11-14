@@ -10,45 +10,69 @@ import photos.model.Photo;
 import photos.model.Tag;
 import photos.model.User;
 import photos.model.UserManager;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import java.io.File;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 public class AlbumController {
 
-    @FXML private ListView<String> photosList;
-    @FXML private TextField captionField;
-    @FXML private TextField tagTypeField;
-    @FXML private TextField tagValueField;
-    @FXML private ListView<String> tagsList;
-    @FXML private Label dateLabel;
-    @FXML private Button addPhotoButton;
+    @FXML
+    private ListView<HBox> photoListView; // unified ListView for thumbnails
+    @FXML
+    private TextField captionField;
+    @FXML
+    private TextField tagTypeField;
+    @FXML
+    private TextField tagValueField;
+    @FXML
+    private ListView<String> tagsList;
+    @FXML
+    private Label dateLabel;
+    @FXML
+    private Button addPhotoButton;
 
     private User user;
     private Album album;
-    private ObservableList<String> photoNames = FXCollections.observableArrayList();
-    private int currentIndex = -1; // for previous/next navigation
-
+    private int currentIndex = -1; // for navigation
     private final DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public void setUserAlbum(User u, Album a) {
         this.user = u;
         this.album = a;
-        refreshPhotos();
+        populateAlbum();
         setupPhotoSelection();
     }
 
-    private void refreshPhotos() {
-        photoNames.clear();
-        for (Photo p : album.getPhotos()) {
-            photoNames.add(p.getCaption() + " (" + p.getFilePath() + ")");
-        }
-        photosList.setItems(photoNames);
+    private void populateAlbum() {
+        photoListView.getItems().clear();
 
-        // Reset current index
+        for (Photo p : album.getPhotos()) {
+            ImageView thumb = new ImageView(p.getThumbnail(100, 100));
+            thumb.setSmooth(true);
+
+            Label caption = new Label(p.getCaption());
+            Label tagsLabel = new Label(p.getTags().stream()
+                    .map(t -> t.getType() + "=" + t.getValue())
+                    .collect(Collectors.joining(", ")));
+
+            VBox vbox = new VBox(5);
+            vbox.getChildren().add(caption);
+            if (!p.getTags().isEmpty()) vbox.getChildren().add(tagsLabel);
+
+            HBox hbox = new HBox(10);
+            hbox.getChildren().addAll(thumb, vbox);
+
+            photoListView.getItems().add(hbox);
+        }
+
+        // select first photo if exists
         if (!album.getPhotos().isEmpty()) {
             currentIndex = 0;
-            photosList.getSelectionModel().select(currentIndex);
+            photoListView.getSelectionModel().select(currentIndex);
             showPhotoDetails();
         } else {
             currentIndex = -1;
@@ -57,7 +81,7 @@ public class AlbumController {
     }
 
     private void setupPhotoSelection() {
-        photosList.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
+        photoListView.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
             currentIndex = newVal.intValue();
             showPhotoDetails();
         });
@@ -73,12 +97,7 @@ public class AlbumController {
 
         Photo p = album.getPhotos().get(currentIndex);
         captionField.setText(p.getCaption());
-
-        if (p.getDate() != null) {
-            dateLabel.setText(dtFormatter.format(p.getDate()));
-        } else {
-            dateLabel.setText("Unknown");
-        }
+        dateLabel.setText(p.getDate() != null ? dtFormatter.format(p.getDate()) : "Unknown");
 
         ObservableList<String> tagStrings = FXCollections.observableArrayList();
         for (Tag t : p.getTags()) {
@@ -92,12 +111,10 @@ public class AlbumController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Photo");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.bmp", "*.gif", "*.jpeg", "*.jpg", "*.png")
-        );
+                new FileChooser.ExtensionFilter("Image Files", "*.bmp", "*.gif", "*.jpeg", "*.jpg", "*.png"));
         File file = fileChooser.showOpenDialog(addPhotoButton.getScene().getWindow());
         if (file == null) return;
 
-        // Check duplicate
         for (Photo p : album.getPhotos()) {
             if (p.getFilePath().equals(file.getAbsolutePath())) {
                 new Alert(Alert.AlertType.ERROR, "Photo already exists in this album!").showAndWait();
@@ -108,17 +125,16 @@ public class AlbumController {
         Photo newPhoto = new Photo(file.getAbsolutePath(), file.getName());
         album.addPhoto(newPhoto);
         UserManager.getInstance().saveUser(user);
-        refreshPhotos();
+        populateAlbum();
     }
 
     @FXML
     private void onDeletePhoto() {
         if (currentIndex < 0) return;
-
         Photo toRemove = album.getPhotos().get(currentIndex);
         album.removePhoto(toRemove);
         UserManager.getInstance().saveUser(user);
-        refreshPhotos();
+        populateAlbum();
     }
 
     @FXML
@@ -133,7 +149,8 @@ public class AlbumController {
         Photo p = album.getPhotos().get(currentIndex);
         p.setCaption(newCaption);
         UserManager.getInstance().saveUser(user);
-        refreshPhotos();
+        populateAlbum();
+        photoListView.getSelectionModel().select(currentIndex);
     }
 
     @FXML
@@ -148,11 +165,8 @@ public class AlbumController {
 
         Photo p = album.getPhotos().get(currentIndex);
         Tag tag = new Tag(type, value);
-        if (!p.getTags().contains(tag)) {
-            p.addTag(tag);
-        } else {
-            new Alert(Alert.AlertType.ERROR, "Tag already exists").showAndWait();
-        }
+        if (!p.getTags().contains(tag)) p.addTag(tag);
+        else new Alert(Alert.AlertType.ERROR, "Tag already exists").showAndWait();
 
         UserManager.getInstance().saveUser(user);
         tagTypeField.clear();
@@ -184,7 +198,7 @@ public class AlbumController {
     private void onPreviousPhoto() {
         if (album.getPhotos().isEmpty()) return;
         currentIndex = (currentIndex - 1 + album.getPhotos().size()) % album.getPhotos().size();
-        photosList.getSelectionModel().select(currentIndex);
+        photoListView.getSelectionModel().select(currentIndex);
         showPhotoDetails();
     }
 
@@ -192,13 +206,12 @@ public class AlbumController {
     private void onNextPhoto() {
         if (album.getPhotos().isEmpty()) return;
         currentIndex = (currentIndex + 1) % album.getPhotos().size();
-        photosList.getSelectionModel().select(currentIndex);
+        photoListView.getSelectionModel().select(currentIndex);
         showPhotoDetails();
     }
 
     @FXML
     private void onBack() {
-        // Close album window
         captionField.getScene().getWindow().hide();
     }
 }

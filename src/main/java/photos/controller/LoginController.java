@@ -10,31 +10,34 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import photos.StorageManager;
 import photos.model.User;
+import photos.model.UserManager;
 
 public class LoginController {
 
-    @FXML private TextField usernameField;
-    @FXML private PasswordField passwordField;
+    @FXML
+    private TextField usernameField;
+    @FXML
+    private PasswordField passwordField;
 
     @FXML
     private void onLogin(ActionEvent e) {
         String user = usernameField.getText().trim();
         String pass = passwordField.getText().trim();
 
-        if(user.isEmpty() || pass.isEmpty()) {
+        if (user.isEmpty() || pass.isEmpty()) {
             new Alert(Alert.AlertType.ERROR, "Enter username and password.").showAndWait();
             return;
         }
 
         // Admin login
-        if(user.equals("admin") && pass.equals("admin")) {
+        if (user.equals("admin") && pass.equals("admin")) {
             loadScreen("/photos/view/Admin.fxml", "Admin");
             return;
         }
 
         // User login
-        for(User u : StorageManager.loadUsers()) {
-            if(u.getUsername().equals(user) && u.verifyPassword(pass)) {
+        for (User u : UserManager.getInstance().getUsers()) { // <-- CHANGE THIS LINE
+            if (u.getUsername().equals(user) && u.verifyPassword(pass)) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/photos/view/User.fxml"));
                 try {
                     Stage stage = (Stage) usernameField.getScene().getWindow();
@@ -44,7 +47,7 @@ public class LoginController {
                     // pass user object to UserController
                     photos.controller.UserController controller = loader.getController();
                     controller.setUser(u);
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
                 return;
@@ -60,7 +63,7 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             stage.setScene(new Scene(loader.load()));
             stage.setTitle("Photos - " + title);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }

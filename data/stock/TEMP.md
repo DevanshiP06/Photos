@@ -1,1 +1,0 @@
-Stock photos go here

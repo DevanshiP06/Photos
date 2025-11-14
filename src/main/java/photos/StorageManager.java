@@ -13,31 +13,37 @@ public class StorageManager {
     // Load all users
     public static List<User> loadUsers() {
         File f = new File(FILE_PATH);
-        if(!f.exists()) return new ArrayList<>();
+        List<User> users;
 
-        try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
-            return (List<User>) ois.readObject();
-        } catch(Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
+        if (!f.exists()) {
+            users = new ArrayList<>();
+        } else {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+                users = (List<User>) ois.readObject();
+            } catch (Exception e) {
+                e.printStackTrace();
+                users = new ArrayList<>();
+            }
         }
+
+        return users;
     }
 
     // Save a new user or update existing
     public static void saveUser(User user) {
         List<User> users = loadUsers();
 
-        // replace if exists
-        for(int i = 0; i < users.size(); i++) {
-            if(users.get(i).getUsername().equals(user.getUsername())) {
+        boolean found = false;
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getUsername().equals(user.getUsername())) {
                 users.set(i, user);
-                saveAll(users);
-                return;
+                found = true;
+                break;
             }
         }
 
-        // else add new
-        users.add(user);
+        if (!found) users.add(user);
+
         saveAll(users);
     }
 
@@ -50,9 +56,13 @@ public class StorageManager {
 
     // Save full list
     private static void saveAll(List<User> users) {
-        try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
-            oos.writeObject(users);
-        } catch(IOException e) {
+        try {
+            File file = new File(FILE_PATH);
+            file.getParentFile().mkdirs();
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+                oos.writeObject(users);
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

@@ -24,4 +24,5 @@
     </HBox>
 
     <Button text="Delete Selected User" onAction="#onDeleteUser" />
+    <Button text="Logout" onAction="#onLogout"/>
 </VBox>

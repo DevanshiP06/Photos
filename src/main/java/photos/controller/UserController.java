@@ -190,4 +190,16 @@ public class UserController {
             }
         });
     }
+
+    @FXML
+    private void onLogout() {
+        try {
+            Stage stage = (Stage) albumsList.getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/photos/view/Login.fxml"));
+            stage.setScene(new Scene(loader.load()));
+            stage.setTitle("Photos App - Login");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

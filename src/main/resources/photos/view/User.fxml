@@ -14,5 +14,6 @@
         <Button text="Add" onAction="#onAddAlbum"/>
         <Button text="Delete Selected" onAction="#onDeleteAlbum"/>
         <Button text="Search Photos" onAction="#onSearchPhotos"/>
+        <Button text="Logout" onAction="#onLogout"/>
     </HBox>
 </VBox>

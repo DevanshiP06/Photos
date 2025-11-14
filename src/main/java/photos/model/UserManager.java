@@ -12,7 +12,7 @@ public class UserManager {
 
     private UserManager() {
         users = loadUsers();
-        ensureStockUserExists();
+        ensureStockUserExists(); // ensure stock exists before any login
     }
 
     public static UserManager getInstance() {
@@ -48,9 +48,7 @@ public class UserManager {
                 break;
             }
         }
-        if (!found) {
-            users.add(user);
-        }
+        if (!found) users.add(user);
 
         saveAll();
     }
@@ -63,7 +61,7 @@ public class UserManager {
     private void saveAll() {
         try {
             File file = new File(FILE_PATH);
-            file.getParentFile().mkdirs(); // create directories if they don't exist
+            file.getParentFile().mkdirs();
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
                 oos.writeObject(users);
             }
@@ -75,10 +73,9 @@ public class UserManager {
     @SuppressWarnings("unchecked")
     private List<User> loadUsers() {
         File f = new File(FILE_PATH);
-        if (!f.exists())
-            return new ArrayList<>();
+        if (!f.exists()) return new ArrayList<>();
 
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_PATH))) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
             return (List<User>) ois.readObject();
         } catch (Exception e) {
             e.printStackTrace();
@@ -87,36 +84,64 @@ public class UserManager {
     }
 
     private void ensureStockUserExists() {
-    // Check if stock user already exists
-    User stockUser = getUser("stock");
-    if (stockUser != null) return; // already exists, nothing to do
+        User stockUser = getUser("stock");
+        if (stockUser != null) return; // stock already exists
 
-    // Create stock user with password "stock"
-    stockUser = new User("stock", "stock");
+        // create stock user
+        stockUser = new User("stock", "stock");
 
-    // Create stock album
-    Album stockAlbum = new Album("stock");
+        // create stock album
+        Album stockAlbum = new Album("stock");
 
-    // Load all photos from data/stock folder
-    File stockFolder = new File("data/stock");
-    if (stockFolder.exists() && stockFolder.isDirectory()) {
-        File[] files = stockFolder.listFiles((dir, name) -> {
-            String lower = name.toLowerCase();
-            return lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png") 
-                    || lower.endsWith(".bmp") || lower.endsWith(".gif");
-        });
+        // load stock photos
+        File stockFolder = new File("data/stock");
+        if (stockFolder.exists() && stockFolder.isDirectory()) {
+            File[] files = stockFolder.listFiles((dir, name) -> {
+                String lower = name.toLowerCase();
+                return lower.endsWith(".jpg") || lower.endsWith(".jpeg") ||
+                       lower.endsWith(".png") || lower.endsWith(".bmp") ||
+                       lower.endsWith(".gif");
+            });
 
-        if (files != null) {
-            for (File f : files) {
-                Photo photo = new Photo(f.getPath(), f.getName());
-                stockAlbum.addPhoto(photo);
+            if (files != null) {
+                for (File f : files) {
+                    Photo photo = new Photo(f.getAbsolutePath(), f.getName());
+                    stockAlbum.addPhoto(photo);
+                }
             }
         }
+
+        stockUser.addAlbum(stockAlbum);
+        users.add(stockUser);
+        saveAll(); // save immediately
     }
 
-    stockUser.addAlbum(stockAlbum);
-    users.add(stockUser);
-    saveAll(); // save immediately
-}
+    public void populateStockPhotos() {
+        User stockUser = getUser("stock");
+        if (stockUser == null) return;
 
+        Album stockAlbum = stockUser.getAlbums().stream()
+                .filter(a -> a.getName().equals("stock"))
+                .findFirst().orElse(null);
+
+        if (stockAlbum == null) return;
+
+        File stockFolder = new File("data/stock");
+        if (!stockFolder.exists()) return;
+
+        File[] files = stockFolder.listFiles((f, name) -> {
+            String lname = name.toLowerCase();
+            return lname.endsWith(".jpg") || lname.endsWith(".png") || lname.endsWith(".jpeg");
+        });
+
+        if (files == null) return;
+
+        for (File f : files) {
+            boolean exists = stockAlbum.getPhotos().stream()
+                    .anyMatch(p -> p.getFilePath().equals(f.getAbsolutePath()));
+            if (!exists) stockAlbum.addPhoto(new Photo(f.getAbsolutePath(), f.getName()));
+        }
+
+        saveUser(stockUser);
+    }
 }
