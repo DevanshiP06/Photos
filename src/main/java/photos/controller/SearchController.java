@@ -1,17 +1,13 @@
 package photos.controller;
 
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import photos.model.Album;
 import photos.model.Photo;
-import photos.model.Tag;
 import photos.model.User;
 import photos.model.UserManager;
-
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;

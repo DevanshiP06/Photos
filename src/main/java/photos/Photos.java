@@ -18,7 +18,7 @@ public class Photos extends Application {
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {
-            e.printStackTrace(); // in your assignment, handle this with an Alert instead
+            e.printStackTrace();
         }
     }
 

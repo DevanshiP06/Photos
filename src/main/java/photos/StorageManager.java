@@ -10,7 +10,6 @@ public class StorageManager {
 
     private static final String FILE_PATH = "data/users/users.dat";
 
-    // Load all users
     public static List<User> loadUsers() {
         File f = new File(FILE_PATH);
         List<User> users;
@@ -29,7 +28,6 @@ public class StorageManager {
         return users;
     }
 
-    // Save a new user or update existing
     public static void saveUser(User user) {
         List<User> users = loadUsers();
 
@@ -47,14 +45,12 @@ public class StorageManager {
         saveAll(users);
     }
 
-    // Delete user
     public static void deleteUser(String username) {
         List<User> users = loadUsers();
         users.removeIf(u -> u.getUsername().equals(username));
         saveAll(users);
     }
 
-    // Save full list
     private static void saveAll(List<User> users) {
         try {
             File file = new File(FILE_PATH);

@@ -8,7 +8,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import photos.StorageManager;
 import photos.model.User;
 import photos.model.UserManager;
 
@@ -29,14 +28,12 @@ public class LoginController {
             return;
         }
 
-        // Admin login
         if (user.equals("admin") && pass.equals("admin")) {
             loadScreen("/photos/view/Admin.fxml", "Admin");
             return;
         }
 
-        // User login
-        for (User u : UserManager.getInstance().getUsers()) { // <-- CHANGE THIS LINE
+        for (User u : UserManager.getInstance().getUsers()) {
             if (u.getUsername().equals(user) && u.verifyPassword(pass)) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/photos/view/User.fxml"));
                 try {
@@ -44,7 +41,6 @@ public class LoginController {
                     stage.setScene(new Scene(loader.load()));
                     stage.setTitle("Photos - " + user);
 
-                    // pass user object to UserController
                     photos.controller.UserController controller = loader.getController();
                     controller.setUser(u);
                 } catch (Exception ex) {

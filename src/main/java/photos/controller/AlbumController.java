@@ -13,15 +13,15 @@ import photos.model.UserManager;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
 import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 public class AlbumController {
-
     @FXML
-    private ListView<HBox> photoListView; // unified ListView for thumbnails
+    private Label albumTitleLabel;
+    @FXML
+    private ListView<HBox> photoListView;
     @FXML
     private TextField captionField;
     @FXML
@@ -37,7 +37,7 @@ public class AlbumController {
 
     private User user;
     private Album album;
-    private int currentIndex = -1; // for navigation
+    private int currentIndex = -1;
     private final DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public void setUserAlbum(User u, Album a) {
@@ -45,6 +45,43 @@ public class AlbumController {
         this.album = a;
         populateAlbum();
         setupPhotoSelection();
+        albumTitleLabel.setText(a.getName());
+        photoListView.setOnDragOver(event -> {
+            if (event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(javafx.scene.input.TransferMode.COPY);
+            }
+            event.consume();
+        });
+
+        photoListView.setOnDragDropped(event -> {
+            var db = event.getDragboard();
+            boolean success = false;
+            if (db.hasFiles()) {
+                for (File file : db.getFiles()) {
+                    String lower = file.getName().toLowerCase();
+                    if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg")
+                            || lower.endsWith(".bmp") || lower.endsWith(".gif")) {
+
+                        boolean duplicate = false;
+                        for (Photo p : album.getPhotos()) {
+                            if (p.getFilePath().equals(file.getAbsolutePath())) {
+                                duplicate = true;
+                                break;
+                            }
+                        }
+                        if (!duplicate) {
+                            Photo newPhoto = new Photo(file.getAbsolutePath(), file.getName());
+                            album.addPhoto(newPhoto);
+                        }
+                    }
+                }
+                UserManager.getInstance().saveUser(user);
+                populateAlbum();
+                success = true;
+            }
+            event.setDropCompleted(success);
+            event.consume();
+        });
     }
 
     private void populateAlbum() {
@@ -61,7 +98,8 @@ public class AlbumController {
 
             VBox vbox = new VBox(5);
             vbox.getChildren().add(caption);
-            if (!p.getTags().isEmpty()) vbox.getChildren().add(tagsLabel);
+            if (!p.getTags().isEmpty())
+                vbox.getChildren().add(tagsLabel);
 
             HBox hbox = new HBox(10);
             hbox.getChildren().addAll(thumb, vbox);
@@ -69,7 +107,6 @@ public class AlbumController {
             photoListView.getItems().add(hbox);
         }
 
-        // select first photo if exists
         if (!album.getPhotos().isEmpty()) {
             currentIndex = 0;
             photoListView.getSelectionModel().select(currentIndex);
@@ -109,28 +146,39 @@ public class AlbumController {
     @FXML
     private void onAddPhoto() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Photo");
+        fileChooser.setTitle("Select Photos");
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Image Files", "*.bmp", "*.gif", "*.jpeg", "*.jpg", "*.png"));
-        File file = fileChooser.showOpenDialog(addPhotoButton.getScene().getWindow());
-        if (file == null) return;
 
-        for (Photo p : album.getPhotos()) {
-            if (p.getFilePath().equals(file.getAbsolutePath())) {
-                new Alert(Alert.AlertType.ERROR, "Photo already exists in this album!").showAndWait();
-                return;
+        java.util.List<File> files = fileChooser.showOpenMultipleDialog(addPhotoButton.getScene().getWindow());
+        if (files == null || files.isEmpty())
+            return;
+
+        for (File file : files) {
+            boolean exists = false;
+            for (Photo p : album.getPhotos()) {
+                if (p.getFilePath().equals(file.getAbsolutePath())) {
+                    exists = true;
+                    break;
+                }
             }
+            if (exists) {
+                new Alert(Alert.AlertType.ERROR, "Photo already exists: " + file.getName()).showAndWait();
+                continue;
+            }
+
+            Photo newPhoto = new Photo(file.getAbsolutePath(), file.getName());
+            album.addPhoto(newPhoto);
         }
 
-        Photo newPhoto = new Photo(file.getAbsolutePath(), file.getName());
-        album.addPhoto(newPhoto);
         UserManager.getInstance().saveUser(user);
         populateAlbum();
     }
 
     @FXML
     private void onDeletePhoto() {
-        if (currentIndex < 0) return;
+        if (currentIndex < 0)
+            return;
         Photo toRemove = album.getPhotos().get(currentIndex);
         album.removePhoto(toRemove);
         UserManager.getInstance().saveUser(user);
@@ -139,7 +187,8 @@ public class AlbumController {
 
     @FXML
     private void onUpdateCaption() {
-        if (currentIndex < 0) return;
+        if (currentIndex < 0)
+            return;
         String newCaption = captionField.getText().trim();
         if (newCaption.isEmpty()) {
             new Alert(Alert.AlertType.ERROR, "Enter a caption").showAndWait();
@@ -155,7 +204,8 @@ public class AlbumController {
 
     @FXML
     private void onAddTag() {
-        if (currentIndex < 0) return;
+        if (currentIndex < 0)
+            return;
         String type = tagTypeField.getText().trim();
         String value = tagValueField.getText().trim();
         if (type.isEmpty() || value.isEmpty()) {
@@ -165,8 +215,10 @@ public class AlbumController {
 
         Photo p = album.getPhotos().get(currentIndex);
         Tag tag = new Tag(type, value);
-        if (!p.getTags().contains(tag)) p.addTag(tag);
-        else new Alert(Alert.AlertType.ERROR, "Tag already exists").showAndWait();
+        if (!p.getTags().contains(tag))
+            p.addTag(tag);
+        else
+            new Alert(Alert.AlertType.ERROR, "Tag already exists").showAndWait();
 
         UserManager.getInstance().saveUser(user);
         tagTypeField.clear();
@@ -176,7 +228,8 @@ public class AlbumController {
 
     @FXML
     private void onDeleteTag() {
-        if (currentIndex < 0) return;
+        if (currentIndex < 0)
+            return;
         String type = tagTypeField.getText().trim();
         String value = tagValueField.getText().trim();
         if (type.isEmpty() || value.isEmpty()) {
@@ -196,7 +249,8 @@ public class AlbumController {
 
     @FXML
     private void onPreviousPhoto() {
-        if (album.getPhotos().isEmpty()) return;
+        if (album.getPhotos().isEmpty())
+            return;
         currentIndex = (currentIndex - 1 + album.getPhotos().size()) % album.getPhotos().size();
         photoListView.getSelectionModel().select(currentIndex);
         showPhotoDetails();
@@ -204,7 +258,8 @@ public class AlbumController {
 
     @FXML
     private void onNextPhoto() {
-        if (album.getPhotos().isEmpty()) return;
+        if (album.getPhotos().isEmpty())
+            return;
         currentIndex = (currentIndex + 1) % album.getPhotos().size();
         photoListView.getSelectionModel().select(currentIndex);
         showPhotoDetails();

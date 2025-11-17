@@ -12,9 +12,7 @@ import photos.model.Photo;
 import photos.model.Tag;
 import photos.model.User;
 import photos.model.UserManager;
-
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +53,7 @@ public class UserController {
         }
         Album album = new Album(name);
         user.addAlbum(album);
-        UserManager.getInstance().saveUser(user); // ensures save
+        UserManager.getInstance().saveUser(user);
         newAlbumField.clear();
         refreshAlbums();
     }
@@ -107,13 +105,11 @@ public class UserController {
             stage.setScene(new Scene(loader.load()));
             stage.setTitle("Album - " + albumName);
 
-            // Pass user and album to AlbumController
             AlbumController controller = loader.getController();
             controller.setUserAlbum(user, album);
 
             stage.showAndWait();
 
-            // Save user after album window closes
             UserManager.getInstance().saveUser(user);
             refreshAlbums();
 
@@ -124,8 +120,6 @@ public class UserController {
 
     @FXML
     private void onSearchPhotos() {
-        // For simplicity, this example opens a search dialog using TextInputDialog
-        // In production, this can be a custom FXML with fields for date range / tags
         javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
         dialog.setTitle("Search Photos");
         dialog.setHeaderText("Search by tag (format: type=value) or leave empty for all photos:");
@@ -140,7 +134,6 @@ public class UserController {
                 String type = parts[0].trim();
                 String value = parts[1].trim();
 
-                // iterate all albums/photos
                 for (Album a : user.getAlbums()) {
                     for (Photo p : a.getPhotos()) {
                         for (Tag t : p.getTags()) {
@@ -152,7 +145,6 @@ public class UserController {
                     }
                 }
             } else if (query.isBlank()) {
-                // show all photos
                 for (Album a : user.getAlbums()) {
                     for (Photo p : a.getPhotos()) {
                         if (!results.contains(p))
@@ -169,7 +161,6 @@ public class UserController {
                 return;
             }
 
-            // Show results in a new Album-like window
             Album searchAlbum = new Album("Search Results");
             for (Photo p : results)
                 searchAlbum.addPhoto(p);

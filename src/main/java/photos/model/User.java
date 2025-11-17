@@ -13,8 +13,8 @@ import javax.crypto.spec.PBEKeySpec;
 
 public class User implements Serializable {
     private String username;
-    private String passwordHash; // store hashed password
-    private String salt;         // unique salt per user
+    private String passwordHash;
+    private String salt;
     private List<Album> albums;
 
     public User(String username, String plainPassword) {
@@ -49,7 +49,6 @@ public class User implements Serializable {
         return Base64.getEncoder().encodeToString(hash);
     }
 
-    // verify input password against stored hash
     public boolean verifyPassword(String password) {
         try {
             byte[] saltBytes = Base64.getDecoder().decode(this.salt);
@@ -61,7 +60,6 @@ public class User implements Serializable {
         }
     }
 
-    // For updating password
     public void setPassword(String newPassword) {
         generatePasswordHash(newPassword);
     }

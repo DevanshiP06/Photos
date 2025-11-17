@@ -12,7 +12,7 @@ public class UserManager {
 
     private UserManager() {
         users = loadUsers();
-        ensureStockUserExists(); // ensure stock exists before any login
+        ensureStockUserExists();
     }
 
     public static UserManager getInstance() {
@@ -85,15 +85,12 @@ public class UserManager {
 
     private void ensureStockUserExists() {
         User stockUser = getUser("stock");
-        if (stockUser != null) return; // stock already exists
+        if (stockUser != null) return;
 
-        // create stock user
         stockUser = new User("stock", "stock");
 
-        // create stock album
         Album stockAlbum = new Album("stock");
 
-        // load stock photos
         File stockFolder = new File("data/stock");
         if (stockFolder.exists() && stockFolder.isDirectory()) {
             File[] files = stockFolder.listFiles((dir, name) -> {
@@ -113,7 +110,7 @@ public class UserManager {
 
         stockUser.addAlbum(stockAlbum);
         users.add(stockUser);
-        saveAll(); // save immediately
+        saveAll();
     }
 
     public void populateStockPhotos() {
