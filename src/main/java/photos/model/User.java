@@ -23,12 +23,21 @@ public class User implements Serializable {
         generatePasswordHash(plainPassword);
     }
 
-    public String getUsername() { return username; }
+    public String getUsername() {
+        return username;
+    }
 
-    public List<Album> getAlbums() { return albums; }
+    public List<Album> getAlbums() {
+        return albums;
+    }
 
-    public void addAlbum(Album album) { albums.add(album); }
-    public void removeAlbum(Album album) { albums.remove(album); }
+    public void addAlbum(Album album) {
+        albums.add(album);
+    }
+
+    public void removeAlbum(Album album) {
+        albums.remove(album);
+    }
 
     private void generatePasswordHash(String plainPassword) {
         try {
@@ -37,12 +46,13 @@ public class User implements Serializable {
             sr.nextBytes(saltBytes);
             this.salt = Base64.getEncoder().encodeToString(saltBytes);
             this.passwordHash = hashPassword(plainPassword, saltBytes);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private String hashPassword(String password, byte[] saltBytes) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private String hashPassword(String password, byte[] saltBytes)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), saltBytes, 65536, 256);
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
         byte[] hash = skf.generateSecret(spec).getEncoded();
@@ -54,7 +64,7 @@ public class User implements Serializable {
             byte[] saltBytes = Base64.getDecoder().decode(this.salt);
             String attemptedHash = hashPassword(password, saltBytes);
             return attemptedHash.equals(this.passwordHash);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -62,5 +72,13 @@ public class User implements Serializable {
 
     public void setPassword(String newPassword) {
         generatePasswordHash(newPassword);
+    }
+
+    public Album getAlbum(String name) {
+        for (Album a : albums) {
+            if (a.getName().equals(name))
+                return a;
+        }
+        return null;
     }
 }

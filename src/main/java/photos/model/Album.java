@@ -19,4 +19,7 @@ public class Album implements Serializable {
     public List<Photo> getPhotos() { return photos; }
     public void addPhoto(Photo p) { photos.add(p); }
     public void removePhoto(Photo p) { photos.remove(p); }
+    @Override
+    public String toString() { return this.getName(); }
+
 }

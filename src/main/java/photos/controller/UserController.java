@@ -6,15 +6,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 import photos.model.Album;
-import photos.model.Photo;
-import photos.model.Tag;
 import photos.model.User;
 import photos.model.UserManager;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class UserController {
 
@@ -56,6 +54,31 @@ public class UserController {
         UserManager.getInstance().saveUser(user);
         newAlbumField.clear();
         refreshAlbums();
+    }
+
+    @FXML
+    private void onRenameAlbum() {
+        String selected = albumsList.getSelectionModel().getSelectedItem();
+        if (selected == null)
+            return;
+
+        TextInputDialog dialog = new TextInputDialog(selected);
+        dialog.setTitle("Rename Album");
+        dialog.setHeaderText("Enter new album name:");
+        dialog.showAndWait().ifPresent(newName -> {
+            if (newName.trim().isEmpty())
+                return;
+            for (Album a : user.getAlbums()) {
+                if (a.getName().equals(newName)) {
+                    new Alert(Alert.AlertType.ERROR, "Album with this name already exists!").showAndWait();
+                    return;
+                }
+            }
+            Album a = user.getAlbum(selected);
+            a.setName(newName.trim());
+            UserManager.getInstance().saveUser(user);
+            refreshAlbums();
+        });
     }
 
     @FXML
@@ -120,66 +143,22 @@ public class UserController {
 
     @FXML
     private void onSearchPhotos() {
-        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
-        dialog.setTitle("Search Photos");
-        dialog.setHeaderText("Search by tag (format: type=value) or leave empty for all photos:");
-        dialog.setContentText("Enter search query:");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/photos/view/SearchView.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(loader.load()));
+            stage.setTitle("Search Photos");
 
-        dialog.showAndWait().ifPresent(query -> {
-            List<Photo> results = new ArrayList<>();
+            SearchController controller = loader.getController();
+            controller.setUser(user);
 
-            String[] parts = query.split("=");
+            stage.showAndWait();
 
-            if (parts.length == 2) {
-                String type = parts[0].trim();
-                String value = parts[1].trim();
+            UserManager.getInstance().saveUser(user);
 
-                for (Album a : user.getAlbums()) {
-                    for (Photo p : a.getPhotos()) {
-                        for (Tag t : p.getTags()) {
-                            if (t.getType().equalsIgnoreCase(type) && t.getValue().equalsIgnoreCase(value)) {
-                                if (!results.contains(p))
-                                    results.add(p);
-                            }
-                        }
-                    }
-                }
-            } else if (query.isBlank()) {
-                for (Album a : user.getAlbums()) {
-                    for (Photo p : a.getPhotos()) {
-                        if (!results.contains(p))
-                            results.add(p);
-                    }
-                }
-            } else {
-                new Alert(Alert.AlertType.ERROR, "Invalid query format. Use type=value").showAndWait();
-                return;
-            }
-
-            if (results.isEmpty()) {
-                new Alert(Alert.AlertType.INFORMATION, "No photos found").showAndWait();
-                return;
-            }
-
-            Album searchAlbum = new Album("Search Results");
-            for (Photo p : results)
-                searchAlbum.addPhoto(p);
-
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/photos/view/AlbumView.fxml"));
-                Stage stage = new Stage();
-                stage.setScene(new Scene(loader.load()));
-                stage.setTitle("Search Results");
-
-                AlbumController controller = loader.getController();
-                controller.setUserAlbum(user, searchAlbum);
-
-                stage.showAndWait();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

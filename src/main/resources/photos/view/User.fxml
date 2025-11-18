@@ -12,6 +12,7 @@
     <HBox spacing="10">
         <TextField fx:id="newAlbumField" promptText="New album"/>
         <Button text="Add" onAction="#onAddAlbum"/>
+        <Button text="Rename Album" onAction="#onRenameAlbum"/>
         <Button text="Delete Selected" onAction="#onDeleteAlbum"/>
         <Button text="Search Photos" onAction="#onSearchPhotos"/>
         <Button text="Logout" onAction="#onLogout"/>

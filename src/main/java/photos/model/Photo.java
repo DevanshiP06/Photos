@@ -61,4 +61,9 @@ public class Photo implements Serializable {
             return null;
         }
     }
+
+    public javafx.scene.image.Image getFullImage() {
+        return new javafx.scene.image.Image("file:" + filePath);
+    }
+
 }

@@ -14,11 +14,16 @@ import java.util.List;
 
 public class SearchController {
 
-    @FXML private TextField startDateField;
-    @FXML private TextField endDateField;
-    @FXML private TextField tag1Type, tag1Value, tag2Type, tag2Value;
-    @FXML private ChoiceBox<String> tagOperator;
-    @FXML private ListView<String> resultsList;
+    @FXML
+    private TextField startDateField;
+    @FXML
+    private TextField endDateField;
+    @FXML
+    private TextField tag1Type, tag1Value, tag2Type, tag2Value;
+    @FXML
+    private ChoiceBox<String> tagOperator;
+    @FXML
+    private ListView<String> resultsList;
 
     private User user;
     private List<Photo> searchResults = new ArrayList<>();
@@ -77,12 +82,16 @@ public class SearchController {
             for (Photo p : a.getPhotos()) {
                 boolean matches = false;
 
-                boolean first = p.getTags().stream().anyMatch(tag -> tag.getType().equals(t1) && tag.getValue().equals(v1));
+                boolean first = p.getTags().stream()
+                        .anyMatch(tag -> tag.getType().equals(t1) && tag.getValue().equals(v1));
 
                 if (!t2.isEmpty() && !v2.isEmpty()) {
-                    boolean second = p.getTags().stream().anyMatch(tag -> tag.getType().equals(t2) && tag.getValue().equals(v2));
-                    if ("AND".equals(op)) matches = first && second;
-                    else matches = first || second;
+                    boolean second = p.getTags().stream()
+                            .anyMatch(tag -> tag.getType().equals(t2) && tag.getValue().equals(v2));
+                    if ("AND".equals(op))
+                        matches = first && second;
+                    else
+                        matches = first || second;
                 } else {
                     matches = first;
                 }
@@ -106,7 +115,8 @@ public class SearchController {
         dialog.setTitle("Create Album");
         dialog.setHeaderText("Enter new album name:");
         dialog.showAndWait().ifPresent(name -> {
-            if (name.trim().isEmpty()) return;
+            if (name.trim().isEmpty())
+                return;
 
             for (Album a : user.getAlbums()) {
                 if (a.getName().equals(name)) {
@@ -133,4 +143,12 @@ public class SearchController {
     private void showAlert(String msg) {
         new Alert(Alert.AlertType.ERROR, msg).showAndWait();
     }
+
+    @FXML
+    private void initialize() {
+        // Populate the ChoiceBox with AND/OR
+        tagOperator.getItems().addAll("AND", "OR");
+        tagOperator.setValue("AND"); // optional default value
+    }
+
 }

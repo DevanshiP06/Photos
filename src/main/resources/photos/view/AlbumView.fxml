@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
 
 <VBox spacing="10" xmlns="http://javafx.com/javafx/21"
@@ -14,6 +15,8 @@
     </padding>
 
     <Label fx:id="albumTitleLabel" style="-fx-font-size:18;" />
+    <Label text="Photo Display:" style="-fx-font-weight:bold;"/>
+    <ImageView fx:id="displayImageView" fitWidth="400" fitHeight="300" preserveRatio="true"/>
 
     <HBox spacing="10">
         <ListView fx:id="photoListView" prefWidth="400" prefHeight="300"/>
@@ -38,6 +41,8 @@
         <Button fx:id="addPhotoButton" text="Add Photo" onAction="#onAddPhoto"/>
         <Button text="Remove Photo" onAction="#onDeletePhoto"/>
         <Button text="Update Caption" onAction="#onUpdateCaption"/>
+        <Button text="Copy Photo" onAction="#onCopyPhoto"/>
+        <Button text="Move Photo" onAction="#onMovePhoto"/>
     </HBox>
 
     <HBox spacing="10">

@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 public class AlbumController {
     @FXML
+    private ImageView displayImageView;
+    @FXML
     private Label albumTitleLabel;
     @FXML
     private ListView<HBox> photoListView;
@@ -38,7 +40,7 @@ public class AlbumController {
     private User user;
     private Album album;
     private int currentIndex = -1;
-    private final DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public void setUserAlbum(User u, Album a) {
         this.user = u;
@@ -129,6 +131,7 @@ public class AlbumController {
             captionField.clear();
             tagsList.setItems(FXCollections.observableArrayList());
             dateLabel.setText("Unknown");
+            displayImageView.setImage(null);
             return;
         }
 
@@ -141,6 +144,8 @@ public class AlbumController {
             tagStrings.add(t.getType() + " = " + t.getValue());
         }
         tagsList.setItems(tagStrings);
+
+        displayImageView.setImage(p.getFullImage());
     }
 
     @FXML
@@ -245,6 +250,44 @@ public class AlbumController {
         tagTypeField.clear();
         tagValueField.clear();
         showPhotoDetails();
+    }
+
+    @FXML
+    private void onCopyPhoto() {
+        if (currentIndex < 0)
+            return;
+        Photo p = album.getPhotos().get(currentIndex);
+
+        ChoiceDialog<Album> dialog = new ChoiceDialog<>(null,
+                user.getAlbums().stream().filter(a -> a != album).toList());
+        dialog.setTitle("Copy Photo");
+        dialog.setHeaderText("Select album to copy photo to:");
+        dialog.showAndWait().ifPresent(targetAlbum -> {
+            if (!targetAlbum.getPhotos().contains(p)) {
+                targetAlbum.addPhoto(p);
+                UserManager.getInstance().saveUser(user);
+            }
+        });
+    }
+
+    @FXML
+    private void onMovePhoto() {
+        if (currentIndex < 0)
+            return;
+        Photo p = album.getPhotos().get(currentIndex);
+
+        ChoiceDialog<Album> dialog = new ChoiceDialog<>(null,
+                user.getAlbums().stream().filter(a -> a != album).toList());
+        dialog.setTitle("Move Photo");
+        dialog.setHeaderText("Select album to move photo to:");
+        dialog.showAndWait().ifPresent(targetAlbum -> {
+            if (!targetAlbum.getPhotos().contains(p)) {
+                targetAlbum.addPhoto(p);
+                album.removePhoto(p);
+                UserManager.getInstance().saveUser(user);
+                populateAlbum();
+            }
+        });
     }
 
     @FXML
