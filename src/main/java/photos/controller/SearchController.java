@@ -14,23 +14,16 @@ import java.util.List;
 
 public class SearchController {
 
-    @FXML
-    private TextField startDateField;
-    @FXML
-    private TextField endDateField;
-    @FXML
-    private TextField tag1Type, tag1Value, tag2Type, tag2Value;
-    @FXML
-    private ChoiceBox<String> tagOperator;
-    @FXML
-    private ListView<String> resultsList;
+    @FXML private TextField startDateField;
+    @FXML private TextField endDateField;
+    @FXML private TextField tag1Type, tag1Value, tag2Type, tag2Value;
+    @FXML private ChoiceBox<String> tagOperator;
+    @FXML private ListView<String> resultsList;
 
     private User user;
     private List<Photo> searchResults = new ArrayList<>();
 
-    public void setUser(User u) {
-        this.user = u;
-    }
+    public void setUser(User u) { this.user = u; }
 
     @FXML
     private void onSearchByDate() {
@@ -39,10 +32,7 @@ public class SearchController {
 
         String startStr = startDateField.getText().trim();
         String endStr = endDateField.getText().trim();
-        if (startStr.isEmpty() || endStr.isEmpty()) {
-            showAlert("Enter both start and end dates.");
-            return;
-        }
+        if (startStr.isEmpty() || endStr.isEmpty()) { showAlert("Enter both start and end dates."); return; }
 
         try {
             LocalDate start = LocalDate.parse(startStr, DateTimeFormatter.ISO_LOCAL_DATE);
@@ -57,9 +47,7 @@ public class SearchController {
                     }
                 }
             }
-        } catch (Exception e) {
-            showAlert("Invalid date format. Use yyyy-mm-dd.");
-        }
+        } catch (Exception e) { showAlert("Invalid date format. Use yyyy-mm-dd."); }
     }
 
     @FXML
@@ -69,10 +57,7 @@ public class SearchController {
 
         String t1 = tag1Type.getText().trim();
         String v1 = tag1Value.getText().trim();
-        if (t1.isEmpty() || v1.isEmpty()) {
-            showAlert("Enter at least first tag type and value.");
-            return;
-        }
+        if (t1.isEmpty() || v1.isEmpty()) { showAlert("Enter at least first tag type and value."); return; }
 
         String t2 = tag2Type.getText().trim();
         String v2 = tag2Value.getText().trim();
@@ -80,20 +65,12 @@ public class SearchController {
 
         for (Album a : user.getAlbums()) {
             for (Photo p : a.getPhotos()) {
-                boolean matches = false;
-
-                boolean first = p.getTags().stream()
-                        .anyMatch(tag -> tag.getType().equals(t1) && tag.getValue().equals(v1));
+                boolean first = p.getTags().stream().anyMatch(tag -> tag.getType().equals(t1) && tag.getValue().equals(v1));
+                boolean matches = first;
 
                 if (!t2.isEmpty() && !v2.isEmpty()) {
-                    boolean second = p.getTags().stream()
-                            .anyMatch(tag -> tag.getType().equals(t2) && tag.getValue().equals(v2));
-                    if ("AND".equals(op))
-                        matches = first && second;
-                    else
-                        matches = first || second;
-                } else {
-                    matches = first;
+                    boolean second = p.getTags().stream().anyMatch(tag -> tag.getType().equals(t2) && tag.getValue().equals(v2));
+                    matches = "AND".equals(op) ? first && second : first || second;
                 }
 
                 if (matches && !searchResults.contains(p)) {
@@ -106,49 +83,31 @@ public class SearchController {
 
     @FXML
     private void onCreateAlbum() {
-        if (searchResults.isEmpty()) {
-            showAlert("No search results to create album from.");
-            return;
-        }
+        if (searchResults.isEmpty()) { showAlert("No search results to create album from."); return; }
 
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Create Album");
         dialog.setHeaderText("Enter new album name:");
         dialog.showAndWait().ifPresent(name -> {
-            if (name.trim().isEmpty())
-                return;
+            if (name.trim().isEmpty()) return;
 
             for (Album a : user.getAlbums()) {
-                if (a.getName().equals(name)) {
-                    showAlert("Album with this name already exists.");
-                    return;
-                }
+                if (a.getName().equals(name)) { showAlert("Album with this name already exists."); return; }
             }
 
             Album newAlbum = new Album(name);
-            for (Photo p : searchResults) {
-                newAlbum.addPhoto(p);
-            }
+            for (Photo p : searchResults) newAlbum.addPhoto(p);
             user.addAlbum(newAlbum);
             UserManager.getInstance().saveUser(user);
         });
     }
 
     @FXML
-    private void onClose() {
-        Stage stage = (Stage) resultsList.getScene().getWindow();
-        stage.close();
-    }
+    private void onClose() { ((Stage) resultsList.getScene().getWindow()).close(); }
 
-    private void showAlert(String msg) {
-        new Alert(Alert.AlertType.ERROR, msg).showAndWait();
-    }
+    private void showAlert(String msg) { new Alert(Alert.AlertType.ERROR, msg).showAndWait(); }
 
     @FXML
-    private void initialize() {
-        // Populate the ChoiceBox with AND/OR
-        tagOperator.getItems().addAll("AND", "OR");
-        tagOperator.setValue("AND"); // optional default value
-    }
+    private void initialize() { tagOperator.getItems().addAll("AND", "OR"); tagOperator.setValue("AND"); }
 
 }

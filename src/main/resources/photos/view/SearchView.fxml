@@ -12,36 +12,30 @@
 
     <Label text="Search Photos" style="-fx-font-size: 16;"/>
 
+    <HBox spacing="10">
+        <Label text="Start Date:"/>
+        <TextField fx:id="startDateField" promptText="yyyy-mm-dd"/>
+        <Label text="End Date:"/>
+        <TextField fx:id="endDateField" promptText="yyyy-mm-dd"/>
+        <Button text="Search by Date" onAction="#onSearchByDate"/>
+    </HBox>
 
-    <TitledPane text="Search by Date Range" expanded="true">
-        <HBox spacing="10" padding="5">
-            <Label text="Start Date:"/>
-            <TextField fx:id="startDateField" promptText="yyyy-mm-dd"/>
-            <Label text="End Date:"/>
-            <TextField fx:id="endDateField" promptText="yyyy-mm-dd"/>
-            <Button text="Search by Date" onAction="#onSearchByDate"/>
-        </HBox>
-    </TitledPane>
+    <VBox spacing="5">
+        <Label text="Tag Type 1"/>
+        <TextField fx:id="tag1Type"/>
+        <Label text="Tag Value 1"/>
+        <TextField fx:id="tag1Value"/>
 
-    <TitledPane text="Search by Tags" expanded="true">
-        <VBox spacing="5" padding="5">
-            <Label text="Tag Type 1"/>
-            <TextField fx:id="tag1Type"/>
-            <Label text="Tag Value 1"/>
-            <TextField fx:id="tag1Value"/>
+        <Label text="Tag Type 2 (optional)"/>
+        <TextField fx:id="tag2Type"/>
+        <Label text="Tag Value 2 (optional)"/>
+        <TextField fx:id="tag2Value"/>
 
-            <Label text="Tag Type 2 (optional)"/>
-            <TextField fx:id="tag2Type"/>
-            <Label text="Tag Value 2 (optional)"/>
-            <TextField fx:id="tag2Value"/>
+        <Label text="Operator"/>
+        <ChoiceBox fx:id="tagOperator"/>
 
-            <Label text="Operator"/>
-            <ChoiceBox fx:id="tagOperator">
-            </ChoiceBox>
-
-            <Button text="Search by Tags" onAction="#onSearchByTags"/>
-        </VBox>
-    </TitledPane>
+        <Button text="Search by Tags" onAction="#onSearchByTags"/>
+    </VBox>
 
     <ListView fx:id="resultsList" prefHeight="200"/>
 
